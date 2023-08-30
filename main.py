@@ -1,10 +1,10 @@
 from bot import Bot
 
 if __name__ == '__main__':
-    # replace URL-Text with product that should be checked on Amazon
-    # replase EMAIL-Text where the notification should be sent
     url = "https://www.tickertape.in/market-mood-index"
-    client_email = "imcoollakshay02@gmail.com"
+    client_email = ""
+    notifier_email = ""
+    notifier_email_app_pswd = ""
 
-    mmi_bot = Bot(url, client_email)
+    mmi_bot = Bot(url, notifier_email, notifier_email_app_pswd, client_email)
     mmi_bot.check_market_mood()
