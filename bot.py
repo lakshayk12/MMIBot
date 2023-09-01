@@ -3,6 +3,7 @@ import requests
 import smtplib
 import ssl
 from email.message import EmailMessage
+import schedule
 
 
 class Bot:
@@ -72,3 +73,12 @@ class Bot:
             self.email_alert()
         except:
             print("Try Again!")
+
+    def send_weekly_market_mood(self):
+        # Schedule the task to run every Saturday evening at 6:00 PM
+        schedule.every().saturday.at("18:00").do(self.check_market_mood)  # 18:00 is 6:00 PM
+
+        # runs every 1 min: for testing...
+        # schedule.every(1).minutes.do(self.check_market_mood)
+        while True:
+            schedule.run_pending()
