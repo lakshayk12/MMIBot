@@ -68,9 +68,13 @@ class Bot:
         soup = BeautifulSoup(response.content, "html.parser")
 
         try:
-            self.mmi_number = soup.find(class_='number').getText()
+            self.mmi_number = float(soup.find(class_='number').getText())
             print("Market Mood Index:", self.mmi_number)
-            self.email_alert()
+            if self.mmi_number < 20:
+                self.email_alert()
+                print("Alert sent!")
+            else:
+                print("Market is not in Extreme Fear Zone!")
         except:
             print("Try Again!")
 
