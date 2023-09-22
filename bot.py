@@ -4,17 +4,18 @@ import smtplib
 import ssl
 from email.message import EmailMessage
 import schedule
+import datetime
 
 
 class Bot:
-    def __init__(self, url, notifier_email, notifier_email_app_pswd, client_email):
+    def __init__(self, url, notifier_email, notifier_email_app_pswd, client_emails):
         self.url = url
-        self.client_email = client_email
+        self.client_emails = client_emails
         self.notifier_email = notifier_email
         self.pswd = notifier_email_app_pswd
         self.mmi_number = -1
 
-    def email_alert(self):
+    def email_alert(self, client_email):
         # Setup port number and server name
         smtp_port = 587  # Standard secure SMTP port
         smtp_server = "smtp.gmail.com"  # Google SMTP Server
@@ -33,7 +34,7 @@ class Bot:
         """
         msg.set_content(email_body)
         msg['subject'] = "Current Indian MMI: " + str(self.mmi_number)
-        msg['to'] = self.client_email
+        msg['to'] = client_email
         msg['from'] = self.notifier_email
 
         # Create context
@@ -48,9 +49,9 @@ class Bot:
             print("Connected to server :-)")
 
             # Send the actual email
-            print(f"Sending email to - {self.client_email}")
-            TIE_server.sendmail(self.notifier_email, self.client_email, msg.as_string())
-            print(f"Email successfully sent to - {self.client_email}")
+            print(f"Sending email to - {client_email}")
+            TIE_server.sendmail(self.notifier_email, client_email, msg.as_string())
+            print(f"%% Email successfully sent to - {client_email} %%")
 
         # If there's an error, print it out
         except Exception as e:
@@ -69,18 +70,21 @@ class Bot:
 
         try:
             self.mmi_number = float(soup.find(class_='number').getText())
-            print("Market Mood Index:", self.mmi_number)
+            current_datetime = str(datetime.datetime.now())
+            print(f'[{current_datetime}] Market Mood Index:', self.mmi_number)
             if self.mmi_number < 20:
-                self.email_alert()
-                print("Alert sent!")
+                for client_email in self.client_emails:
+                    self.email_alert(client_email)
+                    print(f'Alert sent to {client_email}!')
             else:
                 print("Market is not in Extreme Fear Zone!")
+            print('------------------------------------------------------------------')
         except:
             print("Try Again!")
 
     def send_weekly_market_mood(self):
         # Schedule the task to run every Saturday evening at 6:00 PM
-        schedule.every().saturday.at("18:00").do(self.check_market_mood)  # 18:00 is 6:00 PM
+        schedule.every().day.at("18:00").do(self.check_market_mood)  # 18:00 is 6:00 PM
 
         # runs every 1 min: for testing...
         # schedule.every(1).minutes.do(self.check_market_mood)
